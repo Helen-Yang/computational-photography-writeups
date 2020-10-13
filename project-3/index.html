@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CS 194-26 Project 2</title>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style type="text/css">
+    	body {
+    		padding: 10%;
+    		padding-top: 5%;
+    		font-family: sans-serif;
+    	}
+    	img {
+		  width: 100%;
+		  height: auto;
+		}
+		table {
+		  width: 80%;
+		  height: auto;
+		  text-align: center;
+		}
+    </style>
+  </head>
+  <body>
+    <p>**This is from a UC Berkeley course project, so the source code is not publicly viewable. If you are an employer interested in viewing my project code, please contact me privately.**</p>
+    
+  	<h1>CS 194-26 Project 3: Face Morphing</h1>
+    <h2>Defining Correspondences</h2>
+    <table>
+      <col width=20%>
+      <col width=80%>
+      <tr>
+        <td><img src="./senua_tri.jpg"></td>
+        <td><p>  I manually defined around 35 point correspondences (exact number depending on image) for warping and created a Delaunay triangulation of the points from the average of both sets of points.</p></td>
+      </tr>
+    </table>
+  	<h2>Computing the Midway Face</h2>
+    <!-- <img src="./senua_midway.png"> -->
+    <table style="width:100%">
+      <col width=33%>
+      <col width=33%>
+      <col width=33%>
+      <tr>
+        <td>
+          <img src="./senua_actor.jpg">
+          <figcaption>The actor <br> Melina Juergens</figcaption>
+        </td>
+        <td>
+          <img src="./senua_midway.png">
+          <figcaption>Midway <br>face</figcaption>
+        </td>
+        <td>
+          <img src="./senua.jpg">
+          <figcaption>The character <br> Senua</figcaption>
+        </td>
+      </tr>
+      
+    </table>
+  <table style="width:70%">
+      <col width=33%>
+      <col width=33%>
+      <col width=33%>
+    <tr>
+        <td>
+          <img src="./young_ahsoka.jpg">
+          <figcaption>Young Ahsoka</figcaption>
+        </td>
+        <td>
+          <img src="./ahsoka_midway.jpg">
+          <figcaption>Midway Ahsoka</figcaption>
+        </td>
+        <td>
+          <img src="./adult_ahsoka.jpg">
+          <figcaption>Adult Ahsoka</figcaption>
+        </td>
+      </tr>  
+    </table>
+    <h2>The Morph Sequence</h2>
+    <table style="width:80%">
+      <col width=45%>
+      <col width=30%>
+ 
+      <tr>
+        <td>
+        <img src="./senua_warp.gif">
+        </td>
+        <td>
+        <img src="./ahsoka_warp.gif">
+        </td>
+       
+      </tr>
+      
+    </table>
+
+    <h2>The Mean Face of a Population and Caricatures</h2>
+    <p>
+      I used a subset (first 200 images) of the annotated <a href="https://fei.edu.br/~cet/facedatabase.html">FEI Face Dataset </a> as a population of face images. I found the mean shape (average control points and its Delauney triangulation) and mean face (average of faces warped to the mean shape). Half of the dataset is consisted of faces with smiling expressions while the other half contains faces with neutral expressions. Taking the average face morphed onto the midway face shape of the entire population has relatively clear eyes and nose features while the mouth is more blurred because of the variation in expressions. The average faces of the subpopulations have more clearer mouth expressions and noticeable differences in the eyes as part of the facial expression. 
+    </p>
+    <table>
+      <col width=50%>
+      <col width=50%>
+      <tr>
+        <td>
+          <img src="./avg_face.jpg">
+          <figcaption>Mean face <br>(entire population)</figcaption>
+        </td>
+        <td>
+          <img src="./avg_face_pts.jpg">Mean shape <br>(entire population)</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./avg_smile_face.jpg">
+          <figcaption>Mean face <br>(smile subpopulation)</figcaption>
+        </td>
+        <td>
+          <img src="./avg_neutral_face.jpg">
+          <figcaption>Mean face <br>(neutral subpopulation)</figcaption>
+        </td>
+      </tr>
+    </table>
+    <p>
+      Morphing into the mean face. 
+    </p>
+    <table style="width:100%">
+      <col width=50%>
+      <col width=50%>
+
+      <tr>
+        <td>
+          <img src="./dataset_warp_0.gif">
+        </td>
+        <td>
+          <img src="./dataset_warp_22.gif">
+        </td>
+
+      </tr>
+      <tr>
+        <td>
+          <img src="./dataset_warp_59.gif">
+        </td>
+        <td>
+          <img src="./dataset_warp_93.gif">
+        </td>
+
+      </tr>
+    </table>
+    <p>
+      Senua and caricatures with average faces.  
+    </p>
+    <p>
+      The first image is morphing the Senua onto the average face shape. The second is morphing the average face appearance onto Senua's face shape. The last image is more of a caricature: morphing Senua's face and the average smiling face with exaggerated features (using -0.2 for the warp fraction and 0.5 for the dissolve fraction).
+    </p>
+    <table style="width:100%">
+      <col width=33%>
+      <col width=33%>
+      <col width=33%>
+      <tr>
+        <td>
+          <img src="./senua_to_avg.jpg">
+        </td>
+        <td>
+          <img src="./avg_to_senua.jpg">
+        </td>
+        <td>
+          <img src="./smile_caricature.jpg">
+        </td>
+      </tr>
+    </table>
+    <h2>Bells and Whistles</h2>
+    <table style="width:100%">
+      <col width=33%>
+      <col width=33%>
+      <col width=33%>
+    <tr>
+        <td>
+        </td>
+        <td>
+          <img src="./avg_asian_female.jpeg">
+          <figcaption>An average Asian female</figcaption>
+        </td>
+        <td>
+        </td>
+      </tr>  
+    </table>
+    <p>Morphing to a new population. The irregularities are due to misalignments and human error from manually inputting key facial points. The face morphings show obvious differences in face shape and eye shape between Senua and the average Asian female. Morphing shape only is morphing Senua onto the shape of the average Asian female, morphing appearance only is morphing the average Asian female's appearance onto Senua's shape, and the full morph is the midway face (combination of morphing shape and appearance). </p>
+    <table style="width:100%">
+      <col width=33%>
+      <col width=33%>
+      <col width=33%>
+    <tr>
+        <td>
+          <img src="./asian_senua.jpg">
+          <figcaption>Morph shape only</figcaption>
+        </td>
+        <td>
+          <img src="./asian_senua_appearance.jpg">
+          <figcaption>Morph appearance only</figcaption>
+        </td>
+        <td>
+          <img src="./asian_senua_both.jpg">
+          <figcaption>Full morph</figcaption>
+        </td>
+      </tr>  
+    </table>
+  </body>
+</html>

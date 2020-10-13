@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CS 194-26 Final Project</title>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style type="text/css">
+    	body {
+    		padding: 10%;
+    		padding-top: 5%;
+    		font-family: sans-serif;
+    	}
+    	img {
+		  width: 100%;
+		  height: auto;
+		}
+		table {
+		  width: 80%;
+		  height: auto;
+		  text-align: center;
+      margin-left:auto;margin-right:auto; 
+		}
+    </style>
+  </head>
+  <body>
+    <p>**This is from a UC Berkeley course project, so the source code is not publicly viewable. If you are an employer interested in viewing my project code, please contact me privately.**</p>
+    
+  	<h1>CS 194-26 Final Project</h1>
+    <h2>Part 1: Light Fields</h2>
+  	<h2>Depth Refocusing</h2>
+        <div style="width:50%;margin-left:auto;margin-right:auto;  "><img src="chess_refocus.gif">
+          <figcaption style="text-align:center; ">Depth refocusing a light field image of a chessboard.</figcaption></div>
+    <p> When averaging all the images from the light field camera, the result will be focused at points further away from the camera. This is because points closer to the camera will change more than points further away from the camera as the camera position changes. When the images are averaged, the closer points will appear blurred while the further points will be in focus. We can computationally refocus images given the light field camera data by shifting the images before averaging. </p>
+    <p>
+      Given the camera positions for each of the images, I computed the offset between each of them and a reference image, the middle image of the light field grid. For each image, I shifted them by this offset, multiplied by a factor c, and then averaged all the images together. For the chess images, c ranged from -0.4 to 0.15, achieving refocusing from the front of the image to the back. Negative c means that the image will be focused in the front, while positive c means the image will be focused further back. 
+    </p>
+
+    <table style="width:100%">
+      <col width=40%>
+      <col width=40%>
+      <tr>
+        <td>
+          <img src="./-0.4.png">
+          <figcaption>c = -0.4</figcaption>
+        </td>
+        <td>
+          <img src="./-0.19736842105263158.png">
+          <figcaption>c = -0.2</figcaption>
+        </td>
+        
+      </tr>
+      <tr>
+        <td>
+          <img src="./0.0052631578947368585.png">
+          <figcaption>c = 0 (basic average) </figcaption>
+        </td>
+        <td>
+          <img src="./0.15.png">
+          <figcaption>c = 0.15</figcaption>
+        </td>
+        
+      </tr>
+    </table>
+
+    <table style="width:100%">
+      <col width=40%>
+      <col width=40%>
+      <tr>
+        <td>
+          <img src="./-0.1.png">
+          <figcaption>c = -0.1</figcaption>
+        </td>
+        <td>
+          <img src="./0.19473684210526312.png">
+          <figcaption>c = 0.19</figcaption>
+        </td>
+        
+      </tr>
+      <tr>
+        <td>
+          <img src="./0.4157894736842105.png">
+          <figcaption>c = 0.42 </figcaption>
+        </td>
+        <td>
+          <img src="./0.6.png">
+          <figcaption>c = 0.6</figcaption>
+        </td>
+        
+      </tr>
+    </table>
+
+    <h2>Aperture Adjustment</h2>
+    <p>
+      In this point, I adjusted the aperture size, which controls the size of the part of the image that appears in focus. Simply averaging more images results in a smaller aperture, since the more images there are, the more variations there will be between images, and the less will be in focus when averaging. On the other hand, in the case of few or even just 1 image, the image will have a larger area in focus because there is less variation from averaging. 
+    </p>
+    <p>
+      I implemented this part by choosing a point to focus on (choosing an appropriate c value) and averaging images in the same manner as in the refocusing part. But instead of averaging all the light field image data, I chose only a subset of the images, starting with the center image of the light field grid and increasing the number of images in a radius outward. 
+    </p>
+     <table style="width:100%">
+      <col width=40%>
+      <col width=40%>
+      <tr>
+        <td>
+          <img src="./0.png">
+          <figcaption>radius = 0 (single image)</figcaption>
+        </td>
+        <td>
+          <img src="./4.png">
+          <figcaption>radius = 2</figcaption>
+        </td>
+        
+      </tr>
+      <tr>
+        <td>
+          <img src="./8.png">
+          <figcaption>radius = 4 </figcaption>
+        </td>
+        <td>
+          <img src="./12.png">
+          <figcaption>radius = 6</figcaption>
+        </td>
+        
+      </tr>
+    </table>
+
+
+    <h2>Part 2: Image Quilting</h2>
+    <p>
+      Image quilting is a technique described in <a href=https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/papers/efros-siggraph01.pdf>this paper</a> by this class' professor, Alexei Efros, for texture synthesis, or creating a texture from a smaller sample patch.
+    </p>
+    <h2>Randomly Sampled Texture</h2>
+    <p>For comparison, I started with the naive method of synthesizing a texture by combining randomly sampled patches. The boundaries between patches are very obvious. I used patch size of 20x20 pixels to create a synthesized texture of 200x200 pixels.</p>
+     <table style="width:100%">
+      <col width=15%>
+      <col width=30%>
+      <col width=5%>
+
+      <col width=15%>
+      <col width=30%>
+      <col width=5%>
+
+      <tr>
+        <td>
+          <img src="./tex_samples/bricks_small.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./bricks_rand.jpg">
+          <figcaption>Synthesized texture (random).</figcaption>
+        </td>
+        <td></td>
+        <td>
+          <img src="./tex_samples/text_small.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./text_rand.jpg">
+          <figcaption>Synthesized texture (random).</figcaption>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./tex_samples/leaves.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./leaves_rand.jpg">
+          <figcaption>Synthesized texture (random).</figcaption>
+        </td>
+        <td></td>
+        <td>
+          <img src="./tex_samples/bread.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./bread_rand.jpg">
+          <figcaption>Synthesized texture (random).</figcaption>
+        </td>
+        <td></td>
+      </tr>
+    </table>
+    <h2>Overlapping Patches</h2>
+    <p>
+      The next improvement was to overlap texture patches and choose them to minimize error (SSD) in the overlapping region. I initialized the first chunk of the output texture as a randomly selected chunk of the input texture, then grew the texture out by choosing patches that fit well as neighbors.   
+    </p>
+    <table style="width:100%">
+      <col width=15%>
+      <col width=30%>
+      <col width=5%>
+
+      <col width=15%>
+      <col width=30%>
+      <col width=5%>
+
+      <tr>
+        <td>
+          <img src="./tex_samples/bricks_small.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./bricks_simple.jpg">
+          <figcaption>Synthesized texture (simple overlapping).</figcaption>
+        </td>
+        <td></td>
+        <td>
+          <img src="./tex_samples/text_small.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./text_simple.jpg">
+          <figcaption>Synthesized texture (simple overlapping).</figcaption>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./tex_samples/leaves.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./leaves_simple.jpg">
+          <figcaption>Synthesized texture (simple overlapping).</figcaption>
+        </td>
+        <td></td>
+        <td>
+          <img src="./tex_samples/bread.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./bread_simple.jpg">
+          <figcaption>Synthesized texture (simple overlapping).</figcaption>
+        </td>
+        <td></td>
+      </tr>
+    </table>
+    <h2>Seam Finding</h2>
+    <p>
+      As described in the paper, a better method for blending patches is to use a minimum cut mask for the overlapping regions. Instead of straight lines formed by the edges of the patches, neighboring overlapping patches are blended together along a minimum cut seam for more realistic edges. This was implemented in a very similar way to the previous method but with masked edges instead of just pasting rectangular sections of texture. 
+    </p>
+     <table style="width:100%">
+      <col width=15%>
+      <col width=30%>
+      <col width=5%>
+
+      <col width=15%>
+      <col width=30%>
+      <col width=5%>
+
+      <tr>
+        <td>
+          <img src="./tex_samples/bricks_small.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./bricks_cut.jpg">
+          <figcaption>Synthesized texture (seam finding).</figcaption>
+        </td>
+        <td></td>
+        <td>
+          <img src="./tex_samples/text_small.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./text_cut.jpg">
+          <figcaption>Synthesized texture (seam finding).</figcaption>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./tex_samples/leaves.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./leaves_cut.jpg">
+          <figcaption>Synthesized texture (seam finding).</figcaption>
+        </td>
+        <td></td>
+        <td>
+          <img src="./tex_samples/bread.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./bread_cut.jpg">
+          <figcaption>Synthesized texture (seam finding).</figcaption>
+        </td>
+        <td></td>
+      </tr>
+      
+    </table>
+    <table style="width:100%">
+  <col width=15%>
+      <col width=30%>
+
+      <col width=18%>
+      <col width=18%>
+      <col width=18 %>
+      <tr>
+        <td>
+          <img src="./tex_samples/fabric.jpg">
+          <figcaption>Original sample. </figcaption>
+        </td>
+        <td>
+          <img src="./fabric_cut.jpg">
+          <figcaption>Synthesized texture (seam finding).</figcaption>
+        </td>
+        <td>
+          <img src="./left.png">
+          <figcaption>Left masked.</figcaption>
+        </td>
+        
+        <td>
+          <img src="./right.png">
+          <figcaption>Right masked. </figcaption>
+        </td>
+        <td>
+          <img src="./seam.png">
+          <figcaption>Combined seam.</figcaption>
+        </td>
+        
+      </tr>
+    </table>
+    <h2>Texture Transfer</h2>
+    <p>Texture transfer is sampling a texture and applying it to another image, giving the appearance that the other image is "made of" the texture. Using the cut improved texture function, I modified the error function for choosing a sample patch. Instead of just computing the SSD between neighboring overlapping texture segments, I also added the SSD, weighted by a factor alpha, between the texture chunk and the chunk in the image. Texture transfer worked best with textures that had a variation in intensity that matched the range in intensity of the target image. This allowed the lighter areas of the image to be represented with lighter textures while the darker areas could be represented with darker parts of the texture. </p>
+    <table style="width:100%">
+      <col width=40%>
+      <col width=40%>
+
+      <tr>
+        <td>
+          <img src="./tex_samples/feynman_crop.jpg">
+          <figcaption>Original Feynman image.</figcaption>
+        </td>
+        <td>
+          <img src="./tex_samples/efros.jpg">
+          <figcaption>Original Efros image.</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./feynman_l.jpg">
+          <figcaption>Fenyman as leaves.</figcaption>
+        </td>
+        <td>
+          <img src="./efros_t.jpg">
+          <figcaption>Efros as text. <br>Smaller patch size, higher weight for texture-image matching.</figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./feynman8.jpg">
+          <figcaption>Feynman as bread.</figcaption>
+        </td>
+        <td>
+          <img src="./efros_tl.jpg">
+          <figcaption>Efros as text. <br>Larger patch size, higher weight for texture overlap matching.</figcaption>
+        </td>
+      </tr>
+    </table>
+    <p>
+      <b>Bells and Whistles</b>
+      <br> I implemented my own version of the cut method based on section 2.1 of the paper. Given the ssd error between the new and old overlapping patches for each pixel, I computed the minimum path error using a dynamic programming approach. The minimum path ending at a row is the minimum of the pixel's error added to the minimum path error of the pixel in the row before it within one column on either side. Using this error matrix, I created the mask by starting with the minimum value in the last row and tracing back through minimum values along a continuous edge to the first row. This mask would be applied to the left and right (or upper and lower) patches in the overlapping region to create the non straight edges for better blending. 
+    </p>
+  </body>
+</html>

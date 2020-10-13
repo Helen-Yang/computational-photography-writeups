@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CS 194-26 Project 2</title>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style type="text/css">
+    	body {
+    		padding: 10%;
+    		padding-top: 5%;
+    		font-family: sans-serif;
+    	}
+    	img {
+		  width: 100%;
+		  height: auto;
+		}
+		table {
+		  width: 80%;
+		  height: auto;
+		  text-align: center;
+		}
+    </style>
+  </head>
+  <body>
+    <p>**This is from a UC Berkeley course project, so the source code is not publicly viewable. If you are an employer interested in viewing my project code, please contact me privately.**</p>
+    
+  	<h1>CS 194-26 Project 2:  Fun with Filters and Frequencies!</h1>
+  	<h2>Part 1: Fun with Filters</h2>
+    <h3> Part 1.1: Finite Difference Operator </h3>
+  		<p>
+  			Using the finite difference operator (\(D_x = [-1, 1], D_y = [1, -1]^T\))in the x and y directions, we can find changes in each direction. Combining them into a gradient image (partial derivatives of the image with respect to the x and y directions), which becomes an edge image when we binarize based on edge strength. Edge strength is calculated as the gradient magnitude \(\sqrt{(\frac{df}{dx})^2 + (\frac{df}{dy})^2 }\)
+        <br><br>  			
+	  	</p>
+
+      <div>
+        <table style="width:100%">
+          <tr>
+            <td>
+              <img src="./cameraman.png" align="middle" width="100%">
+              <figcaption>Original cameraman photo</figcaption>
+            </td>
+            <td>
+              <img src="./cameraman_x.jpg" align="middle" width="100%">
+              <figcaption>Convolved with \(D_x\)</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./cameraman_y.jpg" align="middle" width="100%">
+              <figcaption>Convolved with \(D_y\)</figcaption>
+            </td>
+            <td>
+              <img src="./cameraman_gradient.jpg" align="middle" width="100%">
+              <figcaption>Edge image</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+  	<h3>Part 1.2: Derivative of Guassian Filter</h3>
+	  	<p>
+	  		The edge image is still noisy, which we can improve by low pass filtering the image before taking the gradient. As seen below, the edges are noticable more pronounced and there is less noise, especially in the bottom half, compared to the edge image produced in part 1.1. The low pass filter consists of convolving with a 2D Gaussian kernel. Blurring by convolving the image with a Gaussian, then convolving the image with the finite difference operators is the same as convolving the finite difference operators with a Gaussian and then convolving that derivative of Gaussian with the image, but the second method is more computationally efficient because you are only convolving with the entire image once. 
+	  	</p>
+      </div>
+      <table style="width:20%">
+        <tr>
+            <td>
+              <img src="./deriv_of_gauss_x.jpg" align="middle" width="100%">
+              <figcaption>Derivative of Gaussian filter (x)</figcaption>
+            </td>
+            <td>
+              <img src="./deriv_of_gauss_y.jpg" align="middle" width="100%">
+              <figcaption>Derivative of Gaussian filter (y)</figcaption>
+            </td>
+          </tr>
+      </table>
+        <table style="width:100%">
+          <tr>
+            <td>
+              <img src="./cameraman_gradient_gauss.jpg" align="middle" width="100%">
+              <figcaption>Convolving with a Gaussian, then the derivative</figcaption>
+            </td>
+            <td>
+              <img src="deriv_of_gauss_cameraman.jpg" align="middle" width="100%">
+              <figcaption>Convolving image with the derivative of a Gaussian</figcaption>
+            </td>
+            
+          </tr>
+          
+        </table>
+      
+      
+  	<h3>Part 1.3: Image Straightening</h3>
+	  	<p> 
+	  		Because straight images tend to have more horizontal and vertical edges, we can use our gradient method to calculate the angle of edges and choose an alignment (couof the image that maximizes the number of edges near -180, -90, 0, 90, and 180 degrees. A histogram of the frequencies of gradient angles allows us to visualize the distribution of horizontal and vertical edges for a given rotation. The gradient direction is given by \(\theta = \arctan{(\frac{df/dy}{df/dx})}\). We try different alignments of the image by rotating it and cropping the center of the image to avoid false edges on the borders that arise from the rotation. 
+	  	</p>
+       <div>
+        <table style="width:100%">
+            <col width="25%">
+            <col width="25%">
+            <col width="25%">
+            <col width="25%">
+
+          <tr>
+            <td><b>Original Image</b></td>
+            <td><b>Histogram of Original Gradient Angles</b></td>
+            <td><b>Straightened Image</b></td>
+            <td><b>Histogram of Straightened Gradient Angles</b></td>
+
+          </tr>
+          <tr>
+            <td>
+              <img src="./facade.jpg" align="middle" width="100%">
+              <figcaption>A building facade</figcaption>
+            </td>
+            <td>
+              <img src="./facade_orig_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+
+            </td>
+            <td>
+              <img src="./straight_facade.jpg" align="middle" width="100%">
+              <figcaption>Rotated by -3 degrees</figcaption>
+            </td>
+            <td>
+              <img src="./facade_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./church.jpg" align="middle" width="100%">
+              <figcaption>A church</figcaption>
+            </td>
+            <td>
+              <img src="./church_orig_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+
+            </td>
+            <td>
+              <img src="./straight_church.jpg" align="middle" width="100%">
+              <figcaption>Rotated by -1 degree</figcaption>
+            </td>
+            <td>
+              <img src="./church_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./keyboard.jpg" align="middle" width="100%">
+              <figcaption>Computer keyboard</figcaption>
+            </td>
+            <td>
+              <img src="./keyboard_orig_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+
+            </td>
+            <td>
+              <img src="./straight_keyboard.jpg" align="middle" width="100%">
+              <figcaption>Rotated by -8 degrees</figcaption>
+            </td>
+            <td>
+              <img src="./keyboard_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./plane.jpg" align="middle" width="100%">
+              <figcaption>View from a plane window</figcaption>
+            </td>
+            <td>
+              <img src="./plane_orig_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+
+            </td>
+            <td>
+              <img src="./straight_plane.jpg" align="middle" width="100%">
+              <figcaption>Rotated by -10 degrees</figcaption>
+            </td>
+            <td>
+              <img src="./plane_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./piano.jpg" align="middle" width="100%">
+              <figcaption>A painted piano</figcaption>
+            </td>
+            <td>
+              <img src="./piano_orig_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+
+            </td>
+            <td>
+              <img src="./straight_piano.jpg" align="middle" width="100%">
+              <figcaption>Rotated by 6 degrees</figcaption>
+            </td>
+            <td>
+              <img src="./piano_hist.png" align="middle" width="100%">
+              <figcaption>Frequency versus Angle</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>The heuristic of maximizing horizontal and vertical edges to find a straight image can run into problems. For images with certain perspectives, where real life parallel lines are not parallel in the image, it is impossible to get all the straight lines to be parallel with an axis, so this algorithm would favor which ever direction has the most straight lines. This is seen in the failure case of the church image, where the horizontal lines of the church are not parallel with the horizontal line formed by the ground and the church. This technique is best for regular shapes like grids with lots of right angles rather than more general natural scenes. </p>
+
+	<h2>Part 2: Fun with Frequencies!</h2>
+  <h3>Part 2.1: Image "Sharpening"</h3>
+  <p>
+    A simple image sharpening algorithm consists of boosting the high frequencies of an image. In the previous parts, we convolved the image with a Gaussian kernel, which acted as a smoothing, low pass filter. To get the high frequency components, we can simply subtract the Gaussian blurred image from the original image instead of convolving with an actual high pass filter. 
+  </p>
+ <table style="width:100%">
+      <col width="20%">
+      <col width="20%">
+      <col width="20%">
+      <col width="20%">
+      <col width="20%">
+      <tr>
+        <td><b>Original Image</b></td>
+        <td><b>Low Frequency Color Channels</b></td>
+        <td><b>High Frequency Color Channels</b></td>
+        <td><b>Sharpened Image (Original + High Frequencies)</b></td>
+      </tr>
+      <tr>
+        <td>
+            <img src="./taj.jpg" align="middle" width="100%">
+        </td>
+        <td>
+            <img src="./blur_r.jpg" align="middle" width="100%">
+            <img src="./blur_g.jpg" align="middle" width="100%">
+            <img src="./blur_b.jpg" align="middle" width="100%">       
+          </td>
+        <td>
+            <img src="./sharp_r.jpg" align="middle" width="100%">
+            <img src="./sharp_g.jpg" align="middle" width="100%">
+            <img src="./sharp_b.jpg" align="middle" width="100%">
+
+        </td>
+        <td>
+            <img src="./sharp_taj.jpg" align="middle" width="100%">
+        </td>
+
+      </tr>
+
+    </table>
+    <p>
+      Blurring and then sharpening an image
+    </p>
+    <table>
+      <col width="33%">
+      <col width="33%">
+      <col width="33%">
+      <tr>
+        <td><b>Original Image</b></td>
+        <td><b>Blurred Image</b></td>
+        <td><b>"Sharpened" Image</b></td>
+      </tr>
+      <tr>
+        <td>
+            <img src="./snow_road.jpg" align="middle" width="100%">
+        </td>
+        <td>
+            <img src="./blur_snow_road.jpg" align="middle" width="100%">
+        </td>
+        <td>
+            <img src="./sharp_snow_road.jpg" align="middle" width="100%">
+        </td>
+      </tr>
+    </table>
+    <p>
+      Blurring and then sharpening the image using this method does not result in the original because when we blur the image, we remove some of the high frequencies. The sharpening method we use here does not add any new frequencies, it simply amplifies the highest frequencies that are still there, so there is no way to recover all the original frequencies. 
+    </p>
+
+  <h3>Part 2.2: Hybrid Images</h3>
+  These hybrid images, from this <a href="http://cvcl.mit.edu/publications/OlivaTorralb_Hybrid_Siggraph06.pdf">SIGGRAPH 2006 paper by Oliva, Torralba, and Schyns</a> consist of blended high frequencies from one image and low frequencies from another. This results in images that appear different from different viewing distances. When closer to the image, it is easier to see the high frequency details, but when the viewer is further away, they see the image created by the low frequencies.
+  <table style="width:100%">
+            <col width="25%">
+            <col width="25%">
+            <col width="25%">
+            <col width="25%">
+
+          <tr>
+            <td><b>Original Images</b></td>
+            <td><b>Filtered Images</b></td>
+            <td><b>FFT of Filtered Images</b></td>
+            <td><b>Hybrid Image</b></td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./nutmeg.jpg" align="middle" width="100%">
+              <img src="./DerekPicture.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./dc_hp_img1.jpg" align="middle" width="100%">
+              <img src="./dc_lp_img2.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./dc_hp_img1_fft.jpg" align="middle" width="100%">
+              <img src="./dc_lp_img2_fft.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./hybrid_cat_100_10.jpg" align="middle" width="100%">
+              <img src="./dc_hybrid_fft.jpg" align="middle" width="100%">
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./sahai.jpg" align="middle" width="100%">
+              <img src="./denero.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./sd_hp_img1.jpg" align="middle" width="100%">
+              <img src="./sd_lp_img2.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./sd_hp_img1_fft.jpg" align="middle" width="100%">
+              <img src="./sd_lp_img2_fft.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./sahai_denero_10_1.jpg" align="middle" width="100%">
+              <img src="./sd_hybrid_fft.jpg" align="middle" width="100%">
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <img src="./snoopy.jpg" align="middle" width="100%">
+              <img src="./pika.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./ps_hp_img1.jpg" align="middle" width="100%">
+              <img src="./ps_lp_img2.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./ps_hp_img1_fft.jpg" align="middle" width="100%">
+              <img src="./ps_lp_img2_fft.jpg" align="middle" width="100%">
+            </td>
+            <td>
+              <img src="./pika_snoopy_100_100.jpg" align="middle" width="100%">
+              <img src="./ps_hybrid_fft.jpg" align="middle" width="100%">
+            </td>
+          </tr>
+  </table>  
+  <p>
+    The last hybrid doesn't work very well because Snoopy has very few facial features, so it is hard to notice it against Pikachu. 
+  </p>
+
+  <h3>Part 2.3: Gaussian and Laplacian Stacks</h3>
+  Gaussian and Laplacian stacks are like their respective image pyramids but without downsampling; each level is at the same resolution as the original. Gaussian stacks are created by convolving the image with a successively Gaussian kernel of successively larger size each level, and serve as a low pass filter. Laplacian stacks are the high pass equivalent and again consist of subtracting the Gaussian filtered image from the original. 
+  <p>
+    Gaussian and Laplacian stacks of hybrid images from the previous part, allowing us to better see the different images in the low and high frequencies:  
+  </p>
+   <table style="width:100%">
+      <col width="20%">
+      <col width="20%">
+      <col width="20%">
+      <col width="20%">
+      <col width="20%">
+
+      <tr>
+        <td>
+          <img src="./lincoln.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_gauss_0.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_gauss_1.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_gauss_2.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_gauss_3.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_gauss_4.jpg" align="middle" width="100%">
+        </td>
+      </tr>
+      <tr>
+        <td>
+        </td>
+        <td>
+          <img src="./lincoln_laplac_0.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_laplac_1.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_laplac_2.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_laplac_3.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./lincoln_laplac_4.jpg" align="middle" width="100%">
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <img src="./sahai_denero_10_1.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_gauss_0.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_gauss_1.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_gauss_2.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_gauss_3.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_gauss_4.jpg" align="middle" width="100%">
+        </td>
+      </tr>
+      <tr>
+        <td>
+        </td>
+        <td>
+          <img src="./profs_laplac_0.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_laplac_1.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_laplac_2.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_laplac_3.jpg" align="middle" width="100%">
+        </td>
+        <td>
+          <img src="./profs_laplac_4.jpg" align="middle" width="100%">
+        </td>
+      </tr>
+    </table>
+
+
+  <h3>Part 2.4: Multiresolution Blending</h3>
+  Using the stacks generated in the previous part, we can create smoother blends between different images. At each level (equivalent to different frequency bands), we combine the images, weighted by a Gaussian blurred mask. The equation from <a href="http://persci.mit.edu/pub_pdfs/spline83.pdf">this paper </a> for blending pixels \((i, j)\) at level \(l\) is \(LS_l(i, j) = GM(i, j) * LA_l(i, j) + (1 - GR_l(i, j)) * LB_l(i, j)\) where GM is the Gaussian stack of the mask, LA is the Laplacian stack of image 1, and LB is the Laplacian stack of image 2. 
+
+	<table>
+    <col width="25%">
+    <col width="10%">
+    <col width="10%">
+    <col width="10%">
+    <col width="10%">
+    <col width="10%">
+    <col width="25%">
+
+
+    <tr>
+      <td><b>Original Images and Mask</b></td>
+      <td><b>Stacks</b></td>
+      <td><b></b></td>
+      <td><b></b></td>
+      <td><b></b></td>
+      <td><b></b></td>
+      <td><b>Blended (Original and Histogram Equalized)</b></td>
+
+    </tr>
+    <tr>
+      <td>
+          <img src="./orange.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./orange_laplac_0.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./orange_laplac_1.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./orange_laplac_2.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./orange_laplac_3.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./orange_laplac_4.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./oraple.jpg" align="middle" width="100%">
+      </td>
+    </tr>
+
+        <tr>
+      <td>
+          <img src="./apple.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./apple_laplac_0.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./apple_laplac_1.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./apple_laplac_2.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./apple_laplac_3.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./apple_laplac_4.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./oraple_eq.jpg" align="middle" width="100%">
+      </td>
+    </tr>
+
+
+
+      <tr>
+      <td>
+        Gaussian of mask
+      </td>
+      <td>
+          <img src="./mask_gauss_0.jpg" align="middle" width="100%">
+      </td>
+
+      <td>
+          <img src="./mask_gauss_1.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./mask_gauss_2.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./mask_gauss_3.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./mask_gauss_4.jpg" align="middle" width="100%">
+      </td>
+      <td></td>
+    </tr>
+
+<tr></tr>
+<tr></tr>
+    <tr>
+      <td>
+          <img src="./left_glass.jpg" align="middle" width="100%">
+          
+      </td>
+      <td>
+          <img src="./left_glass_laplac_0.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./left_glass_laplac_1.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./left_glass_laplac_2.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./left_glass_laplac_3.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./left_glass_laplac_4.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./blend_glass.jpg" align="middle" width="100%">
+
+      </td>
+    </tr>
+  
+
+    <tr>
+      <td>
+          <img src="./right_glass.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./right_glass_laplac_0.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./right_glass_laplac_1.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./right_glass_laplac_2.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./right_glass_laplac_3.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./right_glass_laplac_4.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./blend_glass_eq.jpg" align="middle" width="100%">
+      </td>
+    </tr>
+
+   <tr>
+      <td>
+        Gaussian of mask
+      </td>
+      <td>
+          <img src="./mask_gauss_0.jpg" align="middle" width="100%">
+      </td>
+
+      <td>
+          <img src="./mask_gauss_1.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./mask_gauss_2.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./mask_gauss_3.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./mask_gauss_4.jpg" align="middle" width="100%">
+      </td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>
+          <img src="./snow_road.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./snow_road_laplac_0.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./snow_road_laplac_1.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./snow_road_laplac_2.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./snow_road_laplac_3.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./snow_road_laplac_4.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./blend_scene.jpg" align="middle" width="100%">
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+          <img src="./snoopy.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./snoopy_laplac_0.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./snoopy_laplac_1.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./snoopy_laplac_2.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./snoopy_laplac_3.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./snoopy_laplac_4.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./blend_scene_eq.jpg" align="middle" width="100%">
+      </td>
+    </tr>
+
+  <tr>
+      <td>
+        Gaussian of mask
+      </td>
+      <td>
+          <img src="./rect_mask_gauss_0.jpg" align="middle" width="100%">
+      </td>
+
+      <td>
+          <img src="./rect_mask_gauss_1.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./rect_mask_gauss_2.jpg" align="middle" width="100%">
+      </td>
+      <td>
+          <img src="./rect_mask_gauss_3.jpg" align="middle" width="100%">
+
+      </td>
+      <td>
+          <img src="./rect_mask_gauss_4.jpg" align="middle" width="100%">
+      </td>
+      <td>
+        
+      </td>
+    </tr>
+  </table>
+  </body>
+</html>

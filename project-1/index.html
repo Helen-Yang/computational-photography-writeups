@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CS 194-26 Project 1</title>
+    <style type="text/css">
+    	body {
+    		padding: 10%;
+    		padding-top: 5%;
+    		font-family: sans-serif;
+    	}
+    	img {
+		  width: 100%;
+		  height: auto;
+		}
+		table {
+		  width: 80%;
+		  height: auto;
+		  text-align: center;
+		}
+    </style>
+  </head>
+  <body>
+    <p>**This is from a UC Berkeley course project, so the source code is not publicly viewable. If you are an employer interested in viewing my project code, please contact me privately.**</p>
+    
+  	<h1>CS 194-26 Project 1: Images of the Russian Empire</h1>
+  	<h2>General Method</h2>
+  		<p>
+  			Given the plates of 3 black and white images, taken with either a red, green, or blue filter, the task is to spatially align them so that combining them on top of each other with their respective color channels would produce a color image. 
+  			<br><br>
+  			To quantify how well 2 images (or shifts of images) were matched, Sum of Squared Differences (SSD, also known as L2 norm) was calculated over the pixel values: 
+	  		<tt>SSD(img1, img2) = sum((p1-p2)<sup>2</sup>)</tt> for corresponding pixels <tt>p1</tt> and <tt>p2</tt> in each image.  
+	  	</p>
+  	<h2>Naive</h2>
+	  	<p>
+	  		The naive method was iterating through a range of absolute pixel displacements [-15, 15] in each direction and choosing the best shift based on the SSD of each. For the large images, shifts greater than +/- 15 pixels were needed, and searching through 100<sup>2</sup> shifts became impractical. 
+	  	</p>
+  	<h2>Image Pyramid and Cropping</h2>
+	  	<p> 
+	  		While the naive solution may work for the compressed .jpg images which have a file size on the order of 100 KB, the .tiff images are on the order of a 100 MB, making searching (and shifting) over many pixels expensive. An image pyramid can be used to optimize the search for closest alignment, reducing the alignment search complexity from n<sup>2</sup> to log(n). 
+	  		<br><br>
+	  		I used an image pyramid of depth 5, so the alignment search was done with copies of the image at 5 different resolutions, starting with the lowest. Once the best alignment was found at a level, I would go up to the next level and only search the alignments in the area of the best previously found alignment.  
+	  		<br><br>
+	  		In addition, cropping the solid black and white borders of the image greatly improved the results of the algorithm for most photos. 
+	  	</p>
+
+	<h2>Results</h2>
+  	<table>
+  		<thead>
+  			<th> Image </th>
+  			<th> Offset [x, y] <br>(relative to blue, the top image)</th>
+  		</thead>
+  		<tbody>
+  			<!-- JPG -->
+  			<tr> <td><b>Low Resolution (.jpg) </b></td></tr>
+
+  			<tr>
+  				<td><img src="./out_cathedral.jpg"></td>
+  				<td>cathedral.jpg <br> Green [2, -8] <br> Red [3, -14]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_monastery.jpg"></td>
+  				<td>monastery.jpg <br> Green [0, -16] <br> Red [0, -23]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_tobolsk.jpg"></td>
+  				<td>tobolsk.jpg <br> Green [2, -10] <br> Red [3, -20]</td>
+  			</tr>
+  			<!-- TIF -->
+  			<tr> <td><b>High Resolution (.tif) </b></td></tr>
+
+  			<tr>
+  				<td><img src="./out_emir.jpg"></td>
+  				<td>emir.tif <br> Green [23, -78] <br> Red [30, -124]<br> 
+  					<p style="font-size: 70%">Note: emir.tif resulted in problems with the cropped algorithm because the colors of the man's clothes for the R versus B channels were almost inverted, resulting in the SSD measure considering a visually correct alignment to have high error. Therefore, keeping more of the border by not cropping helped keep the alignments more accurate for this image. A technique like edge detection which is more immune to these changes in brightness would probably be better. </p>
+  				</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_harvesters.jpg"></td>
+  				<td>harvesters.tif <br> Green [15, -68] <br> Red [13, -131]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_icon.jpg"></td>
+  				<td>icon.tif <br> Green [17, -89] <br> Red [22, -170]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_lady.jpg"></td>
+  				<td>lady.tif <br> Green [8, -71] <br> Red [10, -149]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_melons.jpg"></td>
+  				<td>melons.tif <br> Green [8, -47] <br> Red [11, -78]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_onion_church.jpg"></td>
+  				<td>onion_church.tif <br> Green [25, -76] <br> Red [36, -148]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_self_portrait.jpg"></td>
+  				<td>self_portrait.tif <br> Green [26, -54] <br> Red [35, -85]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_three_generations.jpg"></td>
+  				<td>three_generations.tif <br> Green [12, -74] <br> Red [9, -143]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_train.jpg"></td>
+  				<td>train.tif <br> Green [1, -87] <br> Red [31, -170]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_village.jpg"></td>
+  				<td>village.tif <br> Green [12, -65] <br> Red [23, -122]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_workshop.jpg"></td>
+  				<td>workshop.tif <br> Green [-1, -75] <br> Red [-13, -155]</td>
+  			</tr>
+
+  			<!-- additional TIF -->
+  			<tr> <td><b>Additional Images from the Prokudin-Gorskii Photo Collection </b></td></tr>
+  			<tr>
+  				<td><img src="./out_camel_extra.jpg"></td>
+  				<td>camel_extra.tif <br> Green [-3, -81] <br> Red [-18, -154]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_tree_extra.jpg"></td>
+  				<td>tree_extra.tif <br> Green [1, -97] <br> Red [-4, -147]</td>
+  			</tr>
+  			<tr>
+  				<td><img src="./out_vendor_extra.jpg"></td>
+  				<td>vendor_extra.tif <br> Green [-4, -86] <br> Red [1, -161]</td>
+  			</tr>
+  		</tbody>
+  	</table>
+	
+  </body>
+</html>

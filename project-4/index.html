@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CS 194-26 Project 4</title>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style type="text/css">
+    	body {
+    		padding: 10%;
+    		padding-top: 5%;
+    		font-family: sans-serif;
+    	}
+    	img {
+		  width: 100%;
+		  height: auto;
+		}
+		table {
+		  width: 80%;
+		  height: auto;
+		  text-align: center;
+		}
+    </style>
+  </head>
+  <body>
+    <p>**This is from a UC Berkeley course project, so the source code is not publicly viewable. If you are an employer interested in viewing my project code, please contact me privately.**</p>
+    
+  	<h1>CS 194-26 Project 4: Classification and Segmentation</h1>
+    <h2>Part 1: Image Classification</h2>
+    <p>This project used the Fashion MNIST dataset, a collection of 70,000 images of fashion items separated into 10 categories: T-shirt/top, Trouser, Dress, Coat, Sandal, Shirt, Sneaker, Bag, and Ankle boot. The input images were 28x28 pixel grayscale images, which were normalized to [0.0,1.0] floats as preprocessing. The dataset was split into 60,000 training images and 10,000 test images, with a 0.8/0.2 train/validation split (the 60,000 image training set was further divided into 48,000 training images and 12,000 validation images). The test set was used to evaluate the final performance of the model while the validation image was used for hyperparameter tuning, and when compared to the training loss/accuracy, could help determine if overfitting was occuring. I used a batch size of 100. </p>
+<br><br>
+    <p>Examples from the Fashion MNIST dataset: </p>
+    <table style="width:100%">
+      <col width=25%>
+      <col width=25%>
+      <col width=25%>
+      <col width=25%>
+      <tr>
+        <td><img src="./fashionsample1.png"></td>
+        <td><img src="./fashionsample2.png"></td>
+        <td><img src="./fashionsample3.png"></td>
+        <td><img src="./fashionsample4.png"></td>
+
+      </tr>
+    </table>
+    
+    <h3> Training </h3>
+        <p>Basic network architecture: <br><br>
+      (conv1): Conv2d(1, 32, kernel_size=(3, 3), stride=(1, 1))<br>
+      (conv2): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1))<br>
+      (fc1): Linear(in_features=800, out_features=128, bias=True)<br>
+      (fc2): Linear(in_features=128, out_features=10, bias=True)<br>
+</p>
+<br>
+    <p> A summary of the optimal hyperparameters I found: 2 convolutional layers with 32 channels (size 1 input size is because we are using grayscale images which only have 1 color channel) and 3x3 convolutional kernels with a stride of 1 in both directions. The ReLU activation function and a 2d max pooling operation with size (2, 2) was performed on both convolutional layers, the resulting vector was flattened, and then send through 2 fully connected layers to reduce the output into a one dimensional vector of length 10, the number of categories. The optimizer was Adam with a learning rate of 0.0005 and the loss function was cross entropy. I trained the network for 20 epochs. Each of the 10 output values per image represented the learned probability that the image is an example of the corresponding category, so I took the label with the highest probability. </p>
+    <table style="width:100%">
+      <col width=50%>
+      <col width=50%>
+      <tr>
+        <td><img src="./part1_acc.png"></td>
+        <td><img src="./part1_loss.png"></td>
+      </tr>
+    </table>
+  <div>
+    <p>Learned 3x3 Filters</p>
+    <img src="./part1_filters.png">
+  </div>
+  	<h3>Performance by Class</h3>
+    <!-- <img src="./senua_midway.png"> -->
+    <table style="width:100%">
+      <col width=16%>
+      <col width=7%>
+      <col width=7%>
+
+      <col width=70%>
+      <tr>
+        <td>Category</td>
+        <td>Validation Accuracy</td>
+        <td>Test Accuracy</td>
+        <td>Examples of Correctly and Incorrectly Classified Image for Category</td>
+      </tr>
+      <tr>
+        <td> T-shirt/top </td>
+        <td> 89 %</td>
+        <td> 88 %</td>
+        <td><img src="./example0.png"></td>
+      </tr>
+      <tr>
+        <td> Trouser </td>
+        <td> 97 %</td>
+        <td> 97 %</td>
+        <td><img src="./example1.png"></td>
+      </tr>
+      <tr>
+        <td> Pullover </td>
+        <td> 88 %</td>
+        <td> 87 %</td>
+        <td><img src="./example2.png"></td>
+      </tr>
+      <tr>
+        <td> Dress </td>
+        <td> 92 %</td>
+        <td> 93 %</td>
+        <td><img src="./example3.png"></td>
+      </tr>
+      <tr>
+        <td> Coat </td>
+        <td> 84 %</td>
+        <td> 85 %</td>
+        <td><img src="./example4.png"></td>
+      </tr>
+      <tr>
+        <td> Sandal </td>
+        <td> 97 %</td>
+        <td> 97 %</td>
+        <td><img src="./example5.png"></td>
+      </tr>
+      <tr>
+        <td> Shirt </td>
+        <td> 66 %</td>
+        <td> 64 %</td>
+        <td><img src="./example6.png"></td>
+      </tr>
+      <tr>
+        <td> Sneaker </td>
+        <td> 96%</td>
+        <td> 95%</td>
+        <td><img src="./example7.png"></td>
+      </tr>
+      <tr>
+        <td> Bag </td>
+        <td> 98  %</td>
+        <td> 94  %</td>
+        <td><img src="./example8.png"></td>
+      </tr>
+      <tr>
+        <td> Ankle boot </td>
+        <td> 97 %</td>
+        <td> 96 %</td>
+        <td><img src="./example9.png"></td>
+      </tr>
+    </table>
+
+<p>The class with the lowest classification accuracy by far was Shirt, as images from that class often looked very similar to T-shirt/top. The next hardest class was Coat, which is another top item that looked similar to the previously mentioned two top garments. While there were also 3 similar kinds of footwear (sandal, ankle boot, and sneaker), those are more differentiable than the tops by features such as ankle height and amount of negative space. An interesting observation is that many of the shoe images were had the toe on the left side and the heel on the right side of the image, so shoes that were facing the opposite direction were often classified incorrectly. Classes like bag, dress, and trouser were very different from other classes and therefore had relatively higher accuracy. </p>
+<p>
+  Overall accuracy results: <br><br>
+  Accuracy of the network on the training images: 93 %<br>
+  Accuracy of the network on the validation images: 90.58333333333333 % <br>
+  <b>Accuracy of the network on the test images:  90.27 %</b><br>
+
+
+</p>
+
+
+
+    <h2>Part 2: Segmentation</h2>
+    <p>
+      This part used the Mini Facade dataset with the goal of performing semantic segmentation on images of building facades, labeling each pixel as belonging to one of 5 categories: facade, pillar, window, balcony, or other.  
+    </p>
+    <h3>Model Architecture</h3>
+    <p>
+    Conv2d(3, 16, kernel_size=(3, 3), stride=(1, 1))<br>
+    BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)<br>
+    ReLU(inplace=True)<br>
+    MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)<br><br>
+
+    Conv2d(16, 32, kernel_size=(3, 3), stride=(1, 1))<br>
+    ReLU(inplace=True)<br>
+    MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)<br><br>
+
+    Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1))<br>
+    ReLU(inplace=True)<br>
+    MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)<br><br>
+
+    Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1))<br>
+    ReLU(inplace=True)<br>
+    MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)<br><br>
+
+    Conv2d(128, 2048, kernel_size=(3, 3), stride=(1, 1))<br>
+    ReLU(inplace=True)<br>
+    MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, dilation=1, ceil_mode=False)<br><br>
+
+    ConvTranspose2d(2048, 5, kernel_size=(3, 3), stride=(1, 1))<br>
+    Upsample(scale_factor=32.0, mode=bilinear)<br></p>
+    <p>The model I used first consisted of 5 convolutional layers of increasing size, up to 2048 channels, with kernel size (3, 3), each followed by ReLU and 2D max pooling with a stride and kernel size of 2. Batch normalization was performed after the first conv layer. Next, the deconvolution part of the net used a ConvTranspose2d layer and upsampling by a factor of 32 to match the dimensions of the original. The input to the net was the RGB 256 by 256 pixel image, a tensor of shape (3, 256, 256). The output was a tensor of values for each of the classes for each pixel of the image, of shape (5, 256, 256). </p>
+    <p>I used the Adam optimizer with a learning rate of 10e-5 and weight decay of 10e-6, and cross entropy loss. I trained the network for 60 epochs when I began to see overfitting (even though training loss continued to decrease, validation loss began to plateau and even increase). The dataset was divided into 906 images for the training set, of which 182 (about 20%) were used for validation, and a test set consisted of 114 images. </p>
+    <table style="width:100%">
+      <col width=20%>
+      <col width=60%>
+      <col width=20%>
+      <tr>
+        <td></td>
+        <td><img src="./part2_loss.png"></td>
+        <td></td>
+      </tr>
+    </table>
+    <h3>Results</h3>
+    <p>Average Precision</p>
+    <table>
+      <col width=20%>
+      <col width=20%>
+      <col width=60%>
+      <tr style='font-weight: bold;'>
+        <td>Class</td>
+        <td>Color</td>
+        <td>AP</td>
+      </tr>
+      <tr>
+        <td>others</td>
+        <td>black</td>
+        <td>0.4592752863557226</td>
+      </tr>
+      <tr>
+        <td>facade</td>
+        <td>blue</td>
+        <td>0.5224833502991951</td>
+      </tr>
+      <tr>
+        <td>pillar</td>
+        <td>green</td>
+        <td>0.07389729828011496</td>
+      </tr>
+      <tr>
+        <td>window</td>
+        <td>orange</td>
+        <td>0.3287960624729232</td>
+      </tr>
+      <tr>
+        <td>balcony</td>
+        <td>red</td>
+        <td>0.32513651168491847</td>
+      </tr>
+      <tr style="font-weight: bold;">
+        <td>Average</td>
+        <td>N/A</td>
+        <td>0.3419177018185749</td>
+      </tr>
+    </table>
+    <p>Average precision was used as the metric for evaluating performance of the network. The network did much better on the classes that were more represented in the images (in terms of both frequency within the dataset and relative area within images), such as facade and others. In contrast, the network had very poor performance on the pillar class, which were often very skinny portions of the images and often did not occur in the training examples. </p>
+    <table>
+      <col width=33%>
+      <col width=33%>
+      <col width=33%>
+      <tr style='font-weight: bold;'>
+        <td>Input Image </td>
+        <td>Ground Truth Labels</td>
+        <td>Predicted Labels</td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./x12.png">
+          <figcaption>Relatively good example from the dataset.</figcaption>
+        </td>
+        <td>
+          <img src="./gt12.png">
+          <figcaption></figcaption>
+        </td>
+        <td>
+          <img src="./y12.png">
+          <figcaption></figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./x30.png">
+          <figcaption>Relatively bad example from the dataset.</figcaption>
+        </td>
+        <td>
+          <img src="./gt30.png">
+          <figcaption> </figcaption>
+        </td>
+        <td>
+          <img src="./y30.png">
+          <figcaption> </figcaption>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img src="./own_1.jpg">
+          <figcaption>An image from my collection.</figcaption>
+        </td>
+        <td>
+          <img src="./own_1_label.png">
+          <figcaption></figcaption>
+        </td>
+        <td>
+          <img src="./y0.png">
+          <figcaption></figcaption>
+        </td>
+      </tr>
+    </table>
+    <p>As you can see by these good, bad, and example from my collection, the network's performance was not optimal. As expected, it very incorrectly classified the pillar (green) category, while the facade (blue) and window (orange) categories were better. Overall, the predicted labels had large swaths of color instead of fine detail, as exemplified by how the net struggled with the second example.  </p>
+  </body>
+</html>
